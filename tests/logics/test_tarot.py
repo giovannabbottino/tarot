@@ -1,12 +1,12 @@
 import unittest
 from unittest.mock import patch
 
-from tarot import sortear_cartas
+from logics.tarot import sortear_cartas
 
 
 class TestSortearCartas(unittest.TestCase):
-    @patch("tarot.random.choice", return_value="")
-    @patch("tarot.random.sample", return_value=["O Louco", "A Lua", "Ás de Copas"])
+    @patch("logics.tarot.random.choice", return_value="")
+    @patch("logics.tarot.random.sample", return_value=["O Louco", "A Lua", "Ás de Copas"])
     def test_retorna_cartas_com_posicoes(self, mock_sample, mock_choice):
         resultado = sortear_cartas()
 
@@ -21,8 +21,8 @@ class TestSortearCartas(unittest.TestCase):
         mock_sample.assert_called_once()
         self.assertEqual(mock_sample.call_args.args[1], 3)
 
-    @patch("tarot.random.choice", return_value=" (invertida)")
-    @patch("tarot.random.sample", return_value=["O Sol", "A Torre", "O Mundo"])
+    @patch("logics.tarot.random.choice", return_value=" (invertida)")
+    @patch("logics.tarot.random.sample", return_value=["O Sol", "A Torre", "O Mundo"])
     def test_cartas_invertidas(self, mock_sample, mock_choice):
         resultado = sortear_cartas()
 
