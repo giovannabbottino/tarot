@@ -23,11 +23,12 @@ def montar_requisicao(prompt, configuracao):
         "json": {
             "model": configuracao["modelo"],
             "messages": [
-                {"role": "system", "content": SISTEMA},
+                {"role": "system", "content": configuracao.get("sistema") or SISTEMA},
                 {"role": "user", "content": prompt},
             ],
+            **configuracao.get("parametros", {}),
         },
-        "timeout": TIMEOUT_SEGUNDOS,
+        "timeout": configuracao.get("timeout", TIMEOUT_SEGUNDOS),
     }
 
 

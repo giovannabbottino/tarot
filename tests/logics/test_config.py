@@ -22,10 +22,39 @@ def sem(chave):
 
 class TestConfiguracao(unittest.TestCase):
     def test_configuracao_valida(self):
-        self.assertEqual(
-            carregar(VALIDO),
-            {"chave": "sk-teste123", "url": VALIDO["OPENAI_API_URL"], "modelo": "modelo-teste"},
-        )
+        cfg = carregar(VALIDO)
+        self.assertEqual(cfg["chave"], "sk-teste123")
+        self.assertEqual(cfg["url"], VALIDO["OPENAI_API_URL"])
+        self.assertEqual(cfg["modelo"], "modelo-teste")
+        self.assertEqual(cfg["parametros"], {})
+        self.assertEqual(cfg["timeout"], config.TIMEOUT_PADRAO)
+        self.assertIsNone(cfg["sistema"])
+
+    def test_parametros_opcionais_do_env(self):
+        cfg = carregar({
+            **VALIDO,
+            "OPENAI_MAX_TOKENS": "300",
+            "OPENAI_TEMPERATURE": "0.5",
+            "OPENAI_TOP_P": "0.9",
+            "OPENAI_TIMEOUT": "10",
+            "OPENAI_SYSTEM_PROMPT": "  Seja breve.  ",
+        })
+        self.assertEqual(cfg["parametros"], {"max_tokens": 300, "temperature": 0.5, "top_p": 0.9})
+        self.assertEqual(cfg["timeout"], 10)
+        self.assertEqual(cfg["sistema"], "Seja breve.")
+
+    def test_parametros_invalidos(self):
+        casos = {
+            "OPENAI_MAX_TOKENS": ["abc", "0", "1.5"],
+            "OPENAI_TEMPERATURE": ["quente", "3", "-1"],
+            "OPENAI_TOP_P": ["2"],
+            "OPENAI_TIMEOUT": ["0", "x"],
+        }
+        for nome, valores in casos.items():
+            for valor in valores:
+                with self.subTest(nome=nome, valor=valor):
+                    with self.assertRaisesRegex(ErroTarot, nome):
+                        carregar({**VALIDO, nome: valor})
 
     def test_modelo_padrao_quando_ausente_ou_vazio(self):
         self.assertEqual(carregar(sem("OPENAI_MODEL"))["modelo"], config.MODELO_PADRAO)
