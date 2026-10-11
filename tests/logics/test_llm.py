@@ -48,7 +48,22 @@ class TestPreparacaoSolicitacao(unittest.TestCase):
         self.assertEqual(req["json"]["messages"][0]["role"], "system")
         self.assertEqual(req["json"]["messages"][1], {"role": "user", "content": "meu prompt"})
         self.assertEqual(req["timeout"], llm.TIMEOUT_SEGUNDOS)
+        for campo in ("max_tokens", "temperature", "top_p"):
+            self.assertNotIn(campo, req["json"])
 
+    def test_requisicao_com_configuracoes_do_env(self):
+        cfg = {
+            **CONFIG,
+            "parametros": {"max_tokens": 100, "temperature": 0.2},
+            "timeout": 5,
+            "sistema": "Seja breve.",
+        }
+        req = llm.montar_requisicao("p", cfg)
+
+        self.assertEqual(req["json"]["max_tokens"], 100)
+        self.assertEqual(req["json"]["temperature"], 0.2)
+        self.assertEqual(req["json"]["messages"][0]["content"], "Seja breve.")
+        self.assertEqual(req["timeout"], 5)
 
 class TestChamadaModelo(unittest.TestCase):
     @patch("logics.llm.requests.post")
