@@ -13,8 +13,6 @@
 | Separar entrada, saída, lógica e controller | Tudo misturado em um arquivo | Cada parte pode ser testada sozinha. |
 | Erro próprio (`ErroTarot`) tratado só no controller | Deixar as exceções do `requests` subirem | Um único ponto transforma erro em mensagem clara. |
 | Mensagens sem repassar o texto da exceção | Mostrar o erro original | Evita vazar URL, detalhes técnicos ou a chave. |
-| REST com `requests`, chave e URL no `.env` | SDK `openai`; URL no código | Pedido do enunciado e nenhum segredo no código. |
-| Testes com mocks | Sempre testar na API real | Resultado previsível, sem custo, e permite simular timeout e 503. |
 
 ## Testes e resultados
 
@@ -39,15 +37,9 @@ Manuais, com o serviço real:
 | Credencial ausente | Sem chave e sem `.env` (cópia temporária) | Mensagem clara | Passou |
 | Credencial inválida | Chave falsa, URL real | HTTP 401 vira mensagem clara | Passou |
 | URL inválida e sem rede | `api.openai.com`; host inexistente | Mensagem clara | Passou |
-| Pergunta vazia | Enter sem texto | Aviso e nova pergunta | Passou (comportamento antigo: encerrava com erro; o teste real deve ser repetido) |
 
 
 ## Falhas e limitações
-
-- **O que aconteceu:** ao demonstrar "credencial ausente", o programa funcionou normalmente, porque o `load_dotenv` leu a chave do `.env` do projeto. No Básico, uma chave inválida gerava um traceback longo.
-- **Como foi identificado:** a saída mostrou sucesso onde se esperava erro; o traceback apareceu no teste de falha.
-- **Como foi tratado:** a demonstração foi refeita em uma cópia sem `.env`, e os erros passaram a virar mensagens claras.
-- **Por que permanece:** ler o `.env` é intencional. Timeout, 5xx e 429 não dá para provocar de forma controlada no serviço real, então só têm teste simulado. Também não há retry automático.
 
 ## Uso de IA no desenvolvimento
 
